@@ -1,0 +1,45 @@
+[
+  {
+    "httpRequest": {
+      "path": "/somePathOne"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "body": {
+        "value": "one"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "path": "/somePathTwo"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "body": {
+        "value": "one"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "path": "/somePathThree"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "body": {
+        "value": "one"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/some/path"
+    },
+    "httpResponse": {
+      "statusCode": 418,
+      "reasonPhrase": "I'm a teapot"
+    }
+  }
+]
