@@ -1,0 +1,16 @@
+# azure-pipelines.yml
+
+pool:
+  vmImage: 'ubuntu-18.04'
+
+steps:
+  - script: |
+      docker pull grafana/k6
+    displayName: Pull k6 image
+  - script: |
+      docker run -i \
+        -e K6_CLOUD_TOKEN=$(K6_CLOUD_TOKEN) \
+        -v `pwd`:/src \
+        grafana/k6 \
+        cloud /src/loadtest.js \
+    displayName: Run cloud test

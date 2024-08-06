@@ -1,0 +1,80 @@
+[
+    {
+      "httpRequest": {
+        "path": "/somePathOne"
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "body": {
+          "value": "case one"
+        }
+      },
+      "times": {
+        "unlimited": true
+      },
+      "timeToLive": {
+        "timeUnit": "SECONDS",
+        "timeToLive": 30,
+        "unlimited": false
+      }
+    },
+    {
+      "httpRequest": {
+        "path": "/somePathOne"
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "body": {
+          "value": "case two"
+        }
+      },
+      "times": {
+        "remainingTimes": 2,
+        "unlimited": false
+      }
+    },
+    {
+      "httpRequest": {
+        "path": "/somePathOne"
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "body": {
+          "value": "case three"
+        }
+      }
+    },
+    {
+      "httpRequest": {
+        "path": "/somePathTwo"
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "body": {
+          "value": "one"
+        }
+      }
+    },
+    {
+      "httpRequest": {
+        "path": "/somePathThree"
+      },
+      "httpResponse": {
+        "statusCode": 200,
+        "body": {
+          "value": "one"
+        }
+      }
+    },
+    {
+      "httpRequest": {
+        "method": "POST",
+        "path": "/some/path"
+      },
+      "httpResponse": {
+        "statusCode": 418,
+        "reasonPhrase": "I'm a teapot"
+      }
+    }
+  ]
+  

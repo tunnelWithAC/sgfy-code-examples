@@ -1,0 +1,1 @@
+public static async Task<TSource> TeeAsync<TSource, TResult>(this Task<TSource> @this, Func<TSource, Task<TResult>> act)
