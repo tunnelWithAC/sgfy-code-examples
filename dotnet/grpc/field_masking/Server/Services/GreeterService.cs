@@ -16,8 +16,10 @@
 
 #endregion
 
+using Google.Protobuf.WellKnownTypes;
 using Greet;
 using Grpc.Core;
+using System.Threading.Tasks;
 
 namespace Server
 {
@@ -34,6 +36,26 @@ namespace Server
         {
             _logger.LogInformation($"Sending hello to {request.Name}");
             return Task.FromResult(new HelloReply { Message = "Hello " + request.Name });
+        }
+
+        public override Task<CouponModel> GetDiscount(GetDiscountRequest request, ServerCallContext context)
+        {
+            _logger.LogInformation($"Sending hello to {request.ProductName}");
+
+            FieldMask fieldMask = new FieldMask();
+            fieldMask.Paths.AddRange(new string[] { "id", "amount" });
+
+            var discountRequest = new GetDiscountRequest();
+            discountRequest.ProductName = request.ProductName;
+            discountRequest.FieldMask = fieldMask;
+
+            foreach(var item in request.FieldMask.Paths)
+            {
+                Console.WriteLine(item);
+            }
+
+
+            return Task.FromResult(new CouponModel { ProductName = request.ProductName });
         }
     }
 }
