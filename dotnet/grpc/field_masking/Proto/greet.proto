@@ -15,6 +15,7 @@
 syntax = "proto3";
 
 package greet;
+// option csharp_namespace = "greet";
 
 import "google/protobuf/field_mask.proto";
 
