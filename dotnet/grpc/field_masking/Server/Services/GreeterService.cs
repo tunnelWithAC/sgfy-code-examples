@@ -40,22 +40,24 @@ namespace Server
 
         public override Task<CouponModel> GetDiscount(GetDiscountRequest request, ServerCallContext context)
         {
-            _logger.LogInformation($"Sending hello to {request.ProductName}");
-
-            FieldMask fieldMask = new FieldMask();
-            fieldMask.Paths.AddRange(new string[] { "id", "amount" });
-
-            var discountRequest = new GetDiscountRequest();
-            discountRequest.ProductName = request.ProductName;
-            discountRequest.FieldMask = fieldMask;
+            _logger.LogInformation($"Getting discounts for {request.ProductName}");
 
             foreach(var item in request.FieldMask.Paths)
             {
                 Console.WriteLine(item);
             }
 
+            var sourceCoupon = new CouponModel { 
+                Id = 32,
+                ProductName = request.ProductName,
+                Description = "FieldMaskExample",
+                Amount = 1
+            };
 
-            return Task.FromResult(new CouponModel { ProductName = request.ProductName });
+            var destinationCoupon = new CouponModel();
+            request.FieldMask.Merge(sourceCoupon, destinationCoupon);
+
+            return Task.FromResult(destinationCoupon);
         }
     }
 }
