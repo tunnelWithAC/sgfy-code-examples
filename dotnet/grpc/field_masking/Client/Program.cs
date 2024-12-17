@@ -24,31 +24,18 @@ using System.Reflection;
 using var channel = GrpcChannel.ForAddress("https://localhost:5001");
 var client = new Greeter.GreeterClient(channel);
 
-// var reply = await client.SayHelloAsync(new HelloRequest { Name = "GreeterClient" });
-// Console.WriteLine("Greeting: " + reply.Message);
+// Create request
 FieldMask fieldMask = new FieldMask();
 fieldMask.Paths.AddRange(new string[] { "id", "amount" });
 var request = new GetDiscountRequest();
 request.ProductName = "SampleProduct";
 request.FieldMask = fieldMask;
 
+// RPC
 var getDiscountReply = await client.GetDiscountAsync(request);
-// Console.WriteLine("GetDiscount: " + getDiscountReply.Id);
 
+// Log output
 Console.WriteLine($"Id: {getDiscountReply.Id}");
 Console.WriteLine($"ProductName: {getDiscountReply.ProductName}"); // This will be empty
 Console.WriteLine($"Description: {getDiscountReply.Description}"); // This will be empty
 Console.WriteLine($"Amount: {getDiscountReply.Amount}");
-
-// System.Type type = typeof(CouponModel); // Replace with your generated class
-// PropertyInfo[] properties = type.GetProperties();
-
-// Console.WriteLine("Fields in GetDiscountRequest:");
-// foreach (var property in properties)
-// {
-//     Console.WriteLine(property.Name);
-// }
-
-Console.WriteLine("Shutting down");
-// Console.WriteLine("Press any key to exit...");
-// Console.ReadKey();
