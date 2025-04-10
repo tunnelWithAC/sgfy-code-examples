@@ -1,0 +1,2 @@
+[includeIf "gitdir:dotnet/grpc/field_masking/"]
+    path = dotnet/grpc/field_masking/.gitconfig 
