@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Get the list of changed files in the commit
+changed_files=$(git diff-tree -r --name-only HEAD@{1} HEAD)
+
+# Check if any changed files are in the dotnet/grpc/field_masking directory
+if echo "$changed_files" | grep -q "^dotnet/grpc/field_masking/"; then
+    echo "Changes detected in dotnet/grpc/field_masking directory"
+    # Add your commands here that you want to run
+    # For example:
+    # make test
+    # or
+    # dotnet build
+    dotnet test
+else
+    echo "No changes in dotnet/grpc/field_masking directory"
+fi 
+
+# brew install ollama
+
+# if [ "$#" -ne 1 ]; then
+#     echo "Usage: $0 <input_file>"
+#     exit 1
+# fi
+
+# INPUT_FILE=$1
+
+# if [ ! -f "$INPUT_FILE" ]; then
+#     echo "Error: File $INPUT_FILE does not exist"
+#     exit 1
+# fi
+
+# # Read the file content
+# CONTENT=$(cat "$INPUT_FILE")
+
+# # Process with ollama
+# ollama run llama2 "Process this text and provide analysis: $CONTENT"
