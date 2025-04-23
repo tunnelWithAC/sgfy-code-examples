@@ -1,4 +1,4 @@
-using Npgsql;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -8,25 +8,23 @@ using System.Threading.Tasks;
 public class LeaderElectionService : BackgroundService
 {
     private readonly ILogger<LeaderElectionService> _logger;
-    private readonly string _connectionString;
+    private readonly IDbContextFactory<AppDbContext> _contextFactory;
     private readonly int _lockId = 1000; // Arbitrary lock ID
     private Timer _heartbeatTimer;
-    private NpgsqlConnection _connection;
     private bool _isLeader = false;
     
     public bool IsLeader => _isLeader;
     
-    public LeaderElectionService(ILogger<LeaderElectionService> logger, string connectionString)
+    public LeaderElectionService(
+        ILogger<LeaderElectionService> logger,
+        IDbContextFactory<AppDbContext> contextFactory)
     {
         _logger = logger;
-        _connectionString = connectionString;
+        _contextFactory = contextFactory;
     }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _connection = new NpgsqlConnection(_connectionString);
-        await _connection.OpenAsync(stoppingToken);
-        
         // Try to acquire leadership immediately
         await TryAcquireLeadershipAsync();
         
@@ -41,20 +39,28 @@ public class LeaderElectionService : BackgroundService
         // Release resources
         _heartbeatTimer?.Dispose();
         await ReleaseLeadershipAsync();
-        await _connection.CloseAsync();
     }
     
     private async Task<bool> TryAcquireLeadershipAsync()
     {
         try
         {
-            // Try to acquire an advisory lock (non-blocking)
-            using var cmd = new NpgsqlCommand("SELECT pg_try_advisory_lock(@lockId);", _connection);
-            cmd.Parameters.AddWithValue("lockId", _lockId);
-            var result = await cmd.ExecuteScalarAsync();
+            using var dbContext = await _contextFactory.CreateDbContextAsync();
             
+            // Try to acquire an advisory lock (non-blocking)
+            var result = await dbContext.Database
+                .ExecuteSqlRawAsync("SELECT pg_try_advisory_lock({0});", _lockId)
+                .ConfigureAwait(false);
+            
+            // Since ExecuteSqlRaw returns affected rows (0), 
+            // we need to query the result directly
+            var lockAcquired = await dbContext.Database
+                .SqlQueryRaw<bool>("SELECT pg_try_advisory_lock({0}) as Result;", _lockId)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+                
             var wasLeader = _isLeader;
-            _isLeader = (bool)result;
+            _isLeader = lockAcquired;
             
             if (_isLeader && !wasLeader)
             {
@@ -81,10 +87,13 @@ public class LeaderElectionService : BackgroundService
         
         try
         {
+            using var dbContext = await _contextFactory.CreateDbContextAsync();
+            
             // Release the advisory lock
-            using var cmd = new NpgsqlCommand("SELECT pg_advisory_unlock(@lockId);", _connection);
-            cmd.Parameters.AddWithValue("lockId", _lockId);
-            await cmd.ExecuteScalarAsync();
+            await dbContext.Database
+                .ExecuteSqlRawAsync("SELECT pg_advisory_unlock({0});", _lockId)
+                .ConfigureAwait(false);
+                
             _isLeader = false;
             _logger.LogInformation("Leadership released");
         }
@@ -93,4 +102,16 @@ public class LeaderElectionService : BackgroundService
             _logger.LogError(ex, "Error releasing leadership lock");
         }
     }
+}
+
+// Define the DbContext class
+public class AppDbContext : DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) 
+        : base(options)
+    {
+    }
+    
+    // Add your DbSets here if needed
+    // public DbSet<YourEntity> YourEntities { get; set; }
 }
