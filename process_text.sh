@@ -16,6 +16,7 @@ if [ ! -f "$INPUT_FILE" ]; then
 fi
 
 # Read the file content
+# CONTENT=$(cat changes.txt)
 CONTENT=$(cat "$INPUT_FILE")
 
 # Process with ollama
